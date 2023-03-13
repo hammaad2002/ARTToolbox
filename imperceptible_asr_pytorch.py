@@ -564,6 +564,15 @@ class ImperceptibleASRPyTorch(EvasionAttack):
                 if decoded_output[local_batch_size_idx] == y[local_batch_size_idx]:
                     print(type(loss_2nd_stage[local_batch_size_idx]),"Loss: ",loss_2nd_stage[local_batch_size_idx])
                     print(type(best_loss_2nd_stage[local_batch_size_idx]),"Best: ",best_loss_2nd_stage[local_batch_size_idx])
+                    if type(loss_2nd_stage[local_batch_size_idx]) != type(best_loss_2nd_stage[local_batch_size_idx]):
+                        if isinstance(loss_2nd_stage[local_batch_size_idx], torch.Tensor):
+                            loss_2nd_stage[local_batch_size_idx] = loss_2nd_stage[local_batch_size_idx].cpu().numpy()
+                        if isinstance(best_loss_2nd_stage[local_batch_size_idx], torch.Tensor):
+                            best_loss_2nd_stage[local_batch_size_idx] = best_loss_2nd_stage[local_batch_size_idx].cpu().numpy()
+                        if isinstance(loss_2nd_stage[local_batch_size_idx], np.ndarray):
+                            loss_2nd_stage[local_batch_size_idx] = loss_2nd_stage[local_batch_size_idx].tolist()
+                        if isinstance(best_loss_2nd_stage[local_batch_size_idx], np.ndarray):
+                            best_loss_2nd_stage[local_batch_size_idx] = best_loss_2nd_stage[local_batch_size_idx].tolist()
                     if loss_2nd_stage[local_batch_size_idx] < best_loss_2nd_stage[local_batch_size_idx]:
                         # Update best loss at 2nd stage
                         best_loss_2nd_stage[local_batch_size_idx] = (
