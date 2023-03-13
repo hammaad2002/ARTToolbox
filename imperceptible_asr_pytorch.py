@@ -562,8 +562,8 @@ class ImperceptibleASRPyTorch(EvasionAttack):
             # Save the best adversarial example and adjust the alpha coefficient
             for local_batch_size_idx in range(local_batch_size):
                 if decoded_output[local_batch_size_idx] == y[local_batch_size_idx]:
-                    print(type(loss_2nd_stage[local_batch_size_idx]))
-                    print(type(best_loss_2nd_stage[local_batch_size_idx]))
+                    print(type(loss_2nd_stage[local_batch_size_idx]),loss_2nd_stage[local_batch_size_idx])
+                    print(type(best_loss_2nd_stage[local_batch_size_idx]),best_loss_2nd_stage[local_batch_size_idx])
                     if loss_2nd_stage[local_batch_size_idx] < best_loss_2nd_stage[local_batch_size_idx]:
                         # Update best loss at 2nd stage
                         best_loss_2nd_stage[local_batch_size_idx] = (
