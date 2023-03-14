@@ -476,7 +476,8 @@ class ImperceptibleASRPyTorch(EvasionAttack):
             original_output=original_output,
             real_lengths=real_lengths,
         )
-
+        print("Loss looks like this: ", loss)
+        print("Decoded output looks like this: ", decoded_output)
         return loss, local_delta, decoded_output, masked_adv_input, local_delta_rescale
 
     def _attack_2nd_stage(
