@@ -57,7 +57,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
     
     def __init__(
         self,
-        model,
+        modell,
         optimizer: Optional["torch.optim.Optimizer"] = None,
         use_amp: bool = False,
         opt_level: str = "O1",
@@ -72,15 +72,17 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
     #model = bundle.get_model().to(device)   <-- This should be the model input
 
         super().__init__(
-            model = model,
+            model = modell,
             clip_values=clip_values,
             channels_first=None,
             preprocessing_defences=preprocessing_defences,
             postprocessing_defences=postprocessing_defences,
             preprocessing=preprocessing,
         )
+
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model = model
+        self.__model = modell
+
     #transcription encoder for CTC LOSS
     def encode_transcription(self, transcription):
         # Define the dictionary
@@ -116,7 +118,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         x_tensor = x_tensor.float()
         # Performing inference
         with torch.inference_mode():
-            emission, _ = self.model(x_tensor).to(self.device)
+            emission, _ = self.__model(x_tensor).to(self.device)
 
         # Decoding the model's output
         decoder = GreedyCTCDecoder(labels = bundle.get_labels())
@@ -141,7 +143,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
     def to_training_mode(self) -> None:
       
         # Set your model to training mode 
-        self.model.train()
+        self.__model.train()
 
     # Implement sample_rate property 
     @property
