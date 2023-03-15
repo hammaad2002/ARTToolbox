@@ -134,9 +134,9 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         
         # Declaring arguments for CTC Loss
         emission = emission.transpose(0, 1)
-        targets = torch.tensor(encoded_transcription, dtype=torch.long, requires_grad=True)
-        output_sizes = torch.tensor([emission.shape[1]], dtype=torch.long, requires_grad=True)
-        target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long, requires_grad=True)
+        targets = torch.tensor(encoded_transcription, dtype=torch.long)
+        output_sizes = torch.tensor([emission.shape[1]], dtype=torch.long)
+        target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long)
 
         # Calculating loss
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes).sum()
