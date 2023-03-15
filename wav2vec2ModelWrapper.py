@@ -7,7 +7,6 @@ from art.estimators.speech_recognition.speech_recognizer import SpeechRecognizer
 import torch.nn.functional as F
 import torch
 # Import wav2vec2.0 model from pytorch models
-from transformers import Wav2Vec2ForCTC
 from pkg_resources import packaging  # type: ignore[attr-defined]
 from art import config
 from art.utils import get_file
