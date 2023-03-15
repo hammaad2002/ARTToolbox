@@ -36,7 +36,7 @@ from art.estimators.speech_recognition.pytorch_deep_speech import PyTorchDeepSpe
 from art.estimators.speech_recognition.wav2vec2ModelWrapper import wav2vec2Model
 from art.estimators.speech_recognition.speech_recognizer import SpeechRecognizerMixin
 from art.estimators.speech_recognition.speech_recognizer import PytorchSpeechRecognizerMixin
-
+import torch
 if TYPE_CHECKING:
     import torch
 
@@ -654,6 +654,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
         # First compute the psd matrix
         # Get window for the transformation
         # window = scipy.signal.get_window("hann", self.win_length, fftbins=True)
+        import torch
         window = torch.hann_window(self.win_length, periodic=True)
 
         # Do transformation
