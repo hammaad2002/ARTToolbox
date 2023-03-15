@@ -139,7 +139,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
 
         # Calculating loss
         loss = F.ctc_loss(outputs_, targets, output_sizes, target_sizes) 
-
+        print("Loss looks like this: ", loss, "with type: ", type(loss))
         return loss, np.array(transcript)
 
    # Implement to_training_mode method 
