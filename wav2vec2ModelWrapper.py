@@ -136,14 +136,14 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         return torch.tensor(loss), transcript.numpy()
 
    # Implement to_training_mode method 
-   def to_training_mode(self) -> None:
+    def to_training_mode(self) -> None:
       
-      # Set your model to training mode 
-      self.model.train()
+        # Set your model to training mode 
+        self.model.train()
 
-   # Implement sample_rate property 
-   @property
-   def sample_rate(self) -> int:
+    # Implement sample_rate property 
+    @property
+    def sample_rate(self) -> int:
       
-      # Return the sample rate of your model (you may need to check the documentation or source code of your model)
-      return 16000
+        # Return the sample rate of your model (you may need to check the documentation or source code of your model)
+        return 16000
