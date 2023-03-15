@@ -83,7 +83,6 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.__model = modell
-        print(type(self.__model))
 
     #transcription encoder for CTC LOSS
     def encode_transcription(self, transcription):
@@ -114,14 +113,12 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :param real_lengths: Real lengths of original sequences.
         :return: The loss and the decoded output.
         """
-        torch.backends.cudnn.deterministic = True
         bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
         # Changing the variable name for my convenience 
         x_tensor = masked_adv_input.to(self.device)
         x_tensor = x_tensor.float()
         # Performing inference
         self.__model.eval()
-        print(type(self.__model))
         emission, _ = self.__model(x_tensor)
 
         # Decoding the model's output
@@ -140,7 +137,6 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
 
         # Calculating loss
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes).sum()
-        print("Loss looks like this: ", loss, "with type: ", type(loss))
         return loss, np.array([transcript])
 
    # Implement to_training_mode method 
