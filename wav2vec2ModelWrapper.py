@@ -66,16 +66,12 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         import torch
         import torchaudio
         torch.random.manual_seed(0)
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
-        model = bundle.get_model().to(device) 
-        
-        super().__init__(
-            self.model=model,
-        )
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
+        self.model = bundle.get_model().to(device) 
 
         super().__init__(
-            self.model=model,
+            model = model,
             clip_values=clip_values,
             channels_first=None,
             preprocessing_defences=preprocessing_defences,
@@ -113,17 +109,15 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :return: The loss and the decoded output.
         """
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         # Changing the variable name for my convenience 
         x_tensor = masked_adv_input.to(self.device)
 
         # Performing inference
         with torch.inference_mode():
-            emission, _ = model(x_tensor).to(self.device)
+            emission, _ = self.model(x_tensor).to(self.device)
 
         # Decoding the model's output
-        decoder = GreedyCTCDecoder(labels=bundle.get_labels())
+        decoder = GreedyCTCDecoder(labels = bundle.get_labels())
         transcript = decoder(emission[0])
         transcript = transcript.replace("|"," ")
         
