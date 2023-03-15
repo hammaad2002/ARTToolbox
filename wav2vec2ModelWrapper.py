@@ -82,6 +82,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
 
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.__model = modell
+        print(type(self.__model))
 
     #transcription encoder for CTC LOSS
     def encode_transcription(self, transcription):
@@ -118,6 +119,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         x_tensor = x_tensor.float()
         # Performing inference
         with torch.inference_mode():
+            print(type(self.__model))
             emission, _ = self.__model(x_tensor).to(self.device)
 
         # Decoding the model's output
