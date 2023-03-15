@@ -325,7 +325,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
 
         # Reset delta with new result
         local_batch_shape = successful_adv_input_1st_stage.shape
-        self.global_optimal_delta.data = torch.zeros(self.batch_size, self.global_max_length).type(torch.float64).to(self.estimator.device)
+        self.global_optimal_delta.data = torch.zeros(self.batch_size, self.global_max_length).type(torch.float64)
         self.global_optimal_delta.data[
             : local_batch_shape[0], : local_batch_shape[1]
         ] = successful_perturbation_1st_stage
@@ -478,13 +478,11 @@ class ImperceptibleASRPyTorch(EvasionAttack):
             original_output=original_output,
             real_lengths=real_lengths,
         )
-
         # print("Loss looks like this: ", loss, "with type: ", type(loss))
         # print("Decoded output looks like this: ", decoded_output, "with type: ", type(decoded_output))
         # print("masked adv input: ",masked_adv_input, "with type: ", type(masked_adv_input))
         # print("original output: ",original_output, "with type: ", type(original_output))
         # print("real lengths: ",real_lengths, "with type: ", type(real_lengths))
-            
         return loss, local_delta, decoded_output, masked_adv_input, local_delta_rescale
 
     def _attack_2nd_stage(
