@@ -72,12 +72,6 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
     
     #bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
     #model = bundle.get_model().to(device)   <-- This should be the model input
-        import torch
-        import torchaudio
-        torch.random.manual_seed(0)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
-        self.model = bundle.get_model().to(device) 
 
         super().__init__(
             model = model,
