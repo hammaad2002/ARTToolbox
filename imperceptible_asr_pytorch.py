@@ -36,7 +36,7 @@ from art.estimators.speech_recognition.pytorch_deep_speech import PyTorchDeepSpe
 from art.estimators.speech_recognition.wav2vec2ModelWrapper import wav2vec2Model
 from art.estimators.speech_recognition.speech_recognizer import SpeechRecognizerMixin
 from art.estimators.speech_recognition.speech_recognizer import PytorchSpeechRecognizerMixin
-import torch
+
 if TYPE_CHECKING:
     import torch
 
@@ -484,7 +484,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
         # print("masked adv input: ",masked_adv_input, "with type: ", type(masked_adv_input))
         # print("original output: ",original_output, "with type: ", type(original_output))
         # print("real lengths: ",real_lengths, "with type: ", type(real_lengths))
-
+            
         return loss, local_delta, decoded_output, masked_adv_input, local_delta_rescale
 
     def _attack_2nd_stage(
@@ -636,7 +636,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
                 delta=local_delta_rescale[i, : real_lengths[i]], original_max_psd=original_max_psd_batch[i]
             )
 
-            loss = torch.mean(relu(psd_transform_delta.to(self.estimator.device) - torch.tensor(theta_batch[i]).to(self.estimator.device)))
+            loss = torch.mean(relu(psd_transform_delta - torch.tensor(theta_batch[i]).to(self.estimator.device)))
             losses.append(loss)
 
         losses_stack = torch.stack(losses)
@@ -650,26 +650,16 @@ class ImperceptibleASRPyTorch(EvasionAttack):
         :param x: Samples of shape (seq_length,).
         :return: A tuple of the masking threshold and the maximum psd.
         """
+        import librosa
 
         # First compute the psd matrix
         # Get window for the transformation
-        # window = scipy.signal.get_window("hann", self.win_length, fftbins=True)
-        import torch
-        window = torch.hann_window(self.win_length, periodic=True)
-        x = torch.from_numpy(x)
+        window = scipy.signal.get_window("hann", self.win_length, fftbins=True)
+
         # Do transformation
-        transformed_x = torch.stft(
-            input=x,
-            n_fft=self.n_fft,
-            hop_length=self.hop_length,
-            win_length=self.win_length,
-            window=window,
-            center=False,
-            return_complex=True,
-        ).detach().cpu().numpy()
-        # transformed_x = librosa.core.stft(
-        #     y=x, n_fft=self.n_fft, hop_length=self.hop_length, win_length=self.win_length, window=window, center=False
-        # )
+        transformed_x = librosa.core.stft(
+            y=x, n_fft=self.n_fft, hop_length=self.hop_length, win_length=self.win_length, window=window, center=False
+        )
         transformed_x *= np.sqrt(8.0 / 3.0)
 
         psd = abs(transformed_x / self.win_length)
@@ -679,12 +669,8 @@ class ImperceptibleASRPyTorch(EvasionAttack):
         psd = 96 - np.max(psd) + psd
 
         # Compute freqs and barks
-        freqs = torch.fft.rfftfreq(n=self.n_fft, d=1.0 / 16000).detach().cpu().numpy()
-        #freqs = librosa.core.fft_frequencies(sr=self.estimator.sample_rate, n_fft=self.n_fft)
-        barks = 13 * np.arctan(0.00076 * freqs) + 3.5 * np.arctan(
-            pow(freqs / 7500.0, 2)
-        )
-        #barks = 13 * np.arctan(0.00076 * freqs) + 3.5 * np.arctan(pow(freqs / 7500.0, 2))
+        freqs = librosa.core.fft_frequencies(sr=self.estimator.sample_rate, n_fft=self.n_fft)
+        barks = 13 * np.arctan(0.00076 * freqs) + 3.5 * np.arctan(pow(freqs / 7500.0, 2))
 
         # Compute quiet threshold
         ath = np.zeros(len(barks), dtype=np.float64) - np.inf
