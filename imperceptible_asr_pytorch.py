@@ -636,7 +636,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
                 delta=local_delta_rescale[i, : real_lengths[i]], original_max_psd=original_max_psd_batch[i]
             )
 
-            loss = torch.mean(relu(psd_transform_delta - torch.tensor(theta_batch[i]).to(self.estimator.device)))
+            loss = torch.mean(relu(psd_transform_delta.to(self.estimator.device) - torch.tensor(theta_batch[i]).to(self.estimator.device)))
             losses.append(loss)
 
         losses_stack = torch.stack(losses)
@@ -666,7 +666,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
             window=window,
             center=False,
             return_complex=True,
-        ).numpy()
+        ).detach().cpu().numpy()
         # transformed_x = librosa.core.stft(
         #     y=x, n_fft=self.n_fft, hop_length=self.hop_length, win_length=self.win_length, window=window, center=False
         # )
