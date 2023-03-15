@@ -129,7 +129,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         transcript = transcript.replace("|"," ")
         
         # Encoding the target transcription
-        encoded_transcription = encode_transcription(original_output[0].replace(" ","|"))
+        encoded_transcription = self.encode_transcription(original_output[0].replace(" ","|"))
         
         # Declaring arguments for CTC Loss
         outputs_ = emission.transpose(0, 1).to(self.device)
