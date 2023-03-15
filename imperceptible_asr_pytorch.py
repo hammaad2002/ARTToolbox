@@ -251,7 +251,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
         # case a PyTorchDeepSpeech estimator is used. However, the PyTorchDeepSpeech estimator uses batch norm layers
         # which need to be frozen
         self.estimator.to_training_mode()
-        self.estimator.set_batchnorm(train=False)
+        #self.estimator.set_batchnorm(train=False)
 
         # Compute perturbation with batching
         num_batch = int(np.ceil(len(x) / float(self.batch_size)))
@@ -285,7 +285,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
                 adv_x[batch_index_1 + i] = adv_x_batch[i, : len(adv_x[batch_index_1 + i])]
 
         # Unfreeze batch norm layers again, needed in case of PyTorchDeepSpeech
-        self.estimator.set_batchnorm(train=True)
+        #self.estimator.set_batchnorm(train=True)
 
         # Recast to the original type
         adv_x = np.array([adv_x[i].astype(x[i].dtype) for i in range(len(adv_x))])
@@ -356,6 +356,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
 
         # Compute local shape
         local_batch_size = len(x)
+        print(x.shape)
         real_lengths = np.array([x_.shape[0] for x_ in x])
         local_max_length = np.max(real_lengths)
 
