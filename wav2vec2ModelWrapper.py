@@ -118,7 +118,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         x_tensor = masked_adv_input.to(self.device)
         x_tensor = x_tensor.float()
         # Performing inference
-        self.__model.eval()
+        self.__model.train()
         emission, _ = self.__model(x_tensor)
 
         # Decoding the model's output
