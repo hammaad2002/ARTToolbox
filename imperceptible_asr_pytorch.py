@@ -658,7 +658,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
         window = torch.hann_window(self.win_length, periodic=True)
         x = torch.from_numpy(x)
         # Do transformation
-        transformed_wav = torch.stft(
+        transformed_x = torch.stft(
             input=x,
             n_fft=self.n_fft,
             hop_length=self.hop_length,
