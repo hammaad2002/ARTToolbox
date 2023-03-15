@@ -69,7 +69,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         preprocessing: "PREPROCESSING_TYPE" = None,
 
     ):
-    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
     #model = bundle.get_model().to(device)   <-- This should be the model input
 
