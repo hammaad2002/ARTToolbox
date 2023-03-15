@@ -10,6 +10,7 @@ import torch
 from pkg_resources import packaging  # type: ignore[attr-defined]
 from art import config
 from art.utils import get_file
+import torchaudio
 
 if TYPE_CHECKING:
     # pylint: disable=C0412
