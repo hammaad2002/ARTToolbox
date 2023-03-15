@@ -118,7 +118,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         x_tensor = masked_adv_input.to(self.device)
         x_tensor = x_tensor.float()
         # Performing inference
-        self.__model.train()
+        self.__model.eval()
         emission, _ = self.__model(x_tensor)
 
         # Decoding the model's output
@@ -127,8 +127,8 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         transcript = transcript.replace("|"," ")
         
         # Encoding the target transcription
-        encoded_transcription = self.encode_transcription(original_output[0].replace(" ","|"))
-        
+        encoded_transcription = self.encode_transcription(original_output.replace(" ","|"))
+        #print(encoded_transcription)
         # Declaring arguments for CTC Loss
         emission = emission.transpose(0, 1)
         targets = torch.tensor(encoded_transcription, dtype=torch.long)
@@ -136,10 +136,43 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long)
 
         # Calculating loss
-        loss = F.ctc_loss(emission, targets, output_sizes, target_sizes).sum()
+        loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
         return loss, np.array([transcript])
 
-   # Implement to_training_mode method 
+    def loss_gradient(self, x: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:
+        """
+        Compute the gradient of the loss function w.r.t. `x`.
+        :param x: Samples of shape (nb_samples, seq_length). Note that, it is allowable that sequences in the batch
+                  could have different lengths. A possible example of `x` could be:
+                  `x = np.array([np.array([0.1, 0.2, 0.1, 0.4]), np.array([0.3, 0.1])])`.
+        :param y: Target values of shape (nb_samples). Each sample in `y` is a string and it may possess different
+                  lengths. A possible example of `y` could be: `y = np.array(['SIXTY ONE', 'HELLO'])`.
+        :return: Loss gradients of the same shape as `x`.
+        """
+        import torch
+        audioo = torch.from_numpy(x).clone().requires_grad_()
+        #freeze model's weights
+        self.__model.eval()
+        
+        # Encode the transcription as integers
+        encoded_transcription = self.encode_transcription(y.replace(" ","|"))
+        
+        # Generate adversarial example
+        emission, _ = self.__model(x_tensor)
+
+        # Declaring arguments for CTC Loss
+        emission = emission.transpose(0, 1)
+        targets = torch.tensor(encoded_transcription, dtype=torch.long)
+        output_sizes = torch.tensor([emission.shape[1]], dtype=torch.long)
+        target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long)
+
+        # Calculating loss
+        loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
+        loss.backward()
+
+        return audioo.grad.to(self.device)
+
+    # Implement to_training_mode method 
     def to_training_mode(self) -> None:
       
         # Set your model to training mode 
