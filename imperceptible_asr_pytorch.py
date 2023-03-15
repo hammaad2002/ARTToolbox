@@ -679,7 +679,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
         psd = 96 - np.max(psd) + psd
 
         # Compute freqs and barks
-        freqs = torch.fft.rfftfreq(n=self.n_fft, d=1.0 / 16000)
+        freqs = torch.fft.rfftfreq(n=self.n_fft, d=1.0 / 16000).detach().cpu().numpy()
         #freqs = librosa.core.fft_frequencies(sr=self.estimator.sample_rate, n_fft=self.n_fft)
         barks = 13 * np.arctan(0.00076 * freqs) + 3.5 * np.arctan(
             pow(freqs / 7500.0, 2)
