@@ -44,7 +44,16 @@ class GreedyCTCDecoder(torch.nn.Module):
 # Define your wrapper class
 class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorchEstimator):
     # Initialize your wrapper with your model and other parameters
-    
+    '''
+    ---------------------------------------------------------------------------
+    TypeError                                 Traceback (most recent call last)
+    <ipython-input-41-21349aa09a76> in <module>
+    ----> 1 estimator = wav2vec2Model( model )
+
+    TypeError: Can't instantiate abstract class wav2vec2Model with abstract methods 
+    get_activations, input_shape, loss_gradient 
+
+    '''
     estimator_params = PyTorchEstimator.estimator_params + ["optimizer", "use_amp", "opt_level", "lm_config", "verbose"]
     
     def __init__(
@@ -147,3 +156,19 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
       
         # Return the sample rate of your model (you may need to check the documentation or source code of your model)
         return 16000
+
+    @property
+    def input_shape(self) -> Tuple[int, ...]:
+        """
+        Return the shape of one input sample.
+        :return: Shape of one input sample.
+        """
+        pass
+
+    def get_activations(
+        self, x: np.ndarray, layer: Union[int, str], batch_size: int, framework: bool = False
+    ) -> np.ndarray:
+        pass
+
+    def loss_gradient(self, x: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:
+        pass
