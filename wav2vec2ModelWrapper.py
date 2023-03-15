@@ -8,6 +8,19 @@ import torch.nn.functional as F
 import torch
 # Import wav2vec2.0 model from pytorch models
 from transformers import Wav2Vec2ForCTC
+from pkg_resources import packaging  # type: ignore[attr-defined]
+from art import config
+from art.utils import get_file
+
+if TYPE_CHECKING:
+    # pylint: disable=C0412
+    import torch
+
+    from art.defences.postprocessor.postprocessor import Postprocessor
+    from art.defences.preprocessor.preprocessor import Preprocessor
+    from art.utils import CLIP_VALUES_TYPE, PREPROCESSING_TYPE
+
+logger = logging.getLogger(__name__)
 
 class GreedyCTCDecoder(torch.nn.Module):
     def __init__(self, labels, blank=0):
@@ -32,16 +45,42 @@ class GreedyCTCDecoder(torch.nn.Module):
 class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorchEstimator):
     # Initialize your wrapper with your model and other parameters
     
+    estimator_params = PyTorchEstimator.estimator_params + ["optimizer", "use_amp", "opt_level", "lm_config", "verbose"]
+    
     def __init__(
         self,
         model,
+        optimizer: Optional["torch.optim.Optimizer"] = None,
+        use_amp: bool = False,
+        opt_level: str = "O1",
+        verbose: bool = True,
+        clip_values: Optional["CLIP_VALUES_TYPE"] = None,
+        preprocessing_defences: Union["Preprocessor",List["Preprocessor"],None]=None,
+        postprocessing_defences: Union["Postprocessor",List["Postprocessor"],None]=None,
+        preprocessing: "PREPROCESSING_TYPE" = None,
+
     ):
     
     #bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
     #model = bundle.get_model().to(device)   <-- This should be the model input
-    
+        import torch
+        import torchaudio
+        torch.random.manual_seed(0)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
+        model = bundle.get_model().to(device) 
+        
         super().__init__(
             self.model=model,
+        )
+
+        super().__init__(
+            self.model=model,
+            clip_values=clip_values,
+            channels_first=None,
+            preprocessing_defences=preprocessing_defences,
+            postprocessing_defences=postprocessing_defences,
+            preprocessing=preprocessing,
         )
     
     #transcription encoder for CTC LOSS
