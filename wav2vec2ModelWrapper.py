@@ -149,7 +149,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         self.__model.eval()
 
         # Encode the transcription as integers
-        encoded_transcription = self.encode_transcription(y.replace(" ","|"))
+        encoded_transcription = self.encode_transcription(y[0].replace(" ","|"))
         print(encoded_transcription)
         # Generate adversarial example
         emission, _ = self.__model(audioo)
