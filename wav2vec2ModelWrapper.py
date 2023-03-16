@@ -168,8 +168,8 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         with torch.no_grad():
             temptemp = audioo.grad.to("cpu")
             temptemp = temptemp.detach_()
-            print("This is the output", temp)
-        print("This is the output", temp)
+            print("This is the output", temptemp)
+        print("This is the output", temptemptemp)
         return temp
 
 
