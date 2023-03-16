@@ -11,6 +11,7 @@ from pkg_resources import packaging  # type: ignore[attr-defined]
 from art import config
 from art.utils import get_file
 import torchaudio
+from art.estimators.estimator import BaseEstimator, LossGradientsMixin, NeuralNetworkMixin
 
 if TYPE_CHECKING:
     # pylint: disable=C0412
@@ -42,7 +43,7 @@ class GreedyCTCDecoder(torch.nn.Module):
         return "".join([self.labels[i] for i in indices])
 
 # Define your wrapper class
-class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorchEstimator):
+class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorchEstimator, NeuralNetworkMixin, LossGradientsMixin, BaseEstimator):
     # Initialize your wrapper with your model and other parameters
     '''
     ---------------------------------------------------------------------------
@@ -54,7 +55,14 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
     get_activations, input_shape, loss_gradient 
 
     '''
-    estimator_params = PyTorchEstimator.estimator_params + ["optimizer", "use_amp", "opt_level", "lm_config", "verbose"]
+
+    estimator_params = PyTorchEstimator.estimator_params + ["optimizer", "use_amp", "opt_level", "lm_config", "verbose"] + (
+        BaseEstimator.estimator_params
+        + NeuralNetworkMixin.estimator_params
+        + [
+            "device_type",
+        ]
+    )
     
     def __init__(
         self,
