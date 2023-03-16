@@ -122,9 +122,9 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         # Encoding the target transcription
         encoded_transcription = self.encode_transcription(original_output[0].replace(" ","|"))
         # Declaring arguments for CTC Loss
-        emission = emission.transpose(0, 1)
         targets = torch.tensor(encoded_transcription, dtype=torch.long)
         output_sizes = torch.tensor([emission.shape[1]], dtype=torch.long)
+        emission = emission.transpose(0, 1)
         target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long)
 
         # Calculating loss
@@ -142,18 +142,13 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :return: Loss gradients of the same shape as `x`.
         """
         import torch
-        print(x)
-        print(y)
         x = x.to(device)
-        print(type(x))
         audioo = x.clone().requires_grad_()
-        print(audioo)
         #freeze model's weights
         self.__model.eval()
 
         # Encode the transcription as integers
         encoded_transcription = self.encode_transcription(y[0].replace(" ","|"))
-        print(encoded_transcription)
         # Generate adversarial example
         emission, _ = self.__model(audioo)
 
@@ -166,12 +161,9 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         # Calculating loss
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
         loss.backward()
-        print(loss)
         with torch.no_grad():
             temptemp = audioo.grad.to(device)
             temptemp = temptemp.detach_()
-            print("This is the output", temptemp)
-        print("This is the output", temptemp)
 
         return temptemp
 
