@@ -163,9 +163,12 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         # Calculating loss
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
         loss.backward()
-        print("This is the output",audioo.grad.to(self.device))
+        temp = 0
+        with torch.no_grad():
+            temp = audioo.grad.to(self.device)
+            print("This is the output", temp)
 
-        return audioo.grad
+        return temp
 
 
     # Implement to_training_mode method 
