@@ -185,6 +185,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         #model's dictionary
         bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
         # Changing the variable name for my convenience 
+        x = torch.Tensor(x)
         x_tensor = x.to(self._device)
         x_tensor = x_tensor.float()
         # Performing inference
