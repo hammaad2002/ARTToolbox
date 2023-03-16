@@ -111,7 +111,6 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         x_tensor = x_tensor.float()
         # Performing inference
         self.__model.eval()
-        self.__model.cuda()
         emission, _ = self.__model(x_tensor)
 
         # Decoding the model's output
@@ -122,9 +121,9 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         # Encoding the target transcription
         encoded_transcription = self.encode_transcription(original_output[0].replace(" ","|"))
         # Declaring arguments for CTC Loss
+        emission = emission.transpose(0, 1)
         targets = torch.tensor(encoded_transcription, dtype=torch.long)
         output_sizes = torch.tensor([emission.shape[1]], dtype=torch.long)
-        emission = emission.transpose(0, 1)
         target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long)
 
         # Calculating loss
@@ -142,28 +141,52 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :return: Loss gradients of the same shape as `x`.
         """
         import torch
+        print(x)
+        print(y)
         x = x.to(device)
+        print(type(x))
         audioo = x.clone().requires_grad_()
+        print(audioo)
         #freeze model's weights
         self.__model.eval()
 
         # Encode the transcription as integers
         encoded_transcription = self.encode_transcription(y[0].replace(" ","|"))
+        print(encoded_transcription)
         # Generate adversarial example
         emission, _ = self.__model(audioo)
 
         # Declaring arguments for CTC Loss
+        
         targets = torch.tensor(encoded_transcription, dtype=torch.long)
         output_sizes = torch.tensor([emission.shape[0]], dtype=torch.long)
         emission = emission.transpose(0, 1)
         target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long)
+        print("Starting from here:... ")
+        print("Emission ",emission.shape)
+        print("Targets ",targets)
+        print("Output len: ",output_sizes)
+        print("Target len: ",target_sizes)
+
+# Starting from here:... 
+# Emission  torch.Size([143, 1, 29])
+# Targets  tensor([ 3,  8,  2,  1, 16,  8,  7, 12, 11,  1,  4, 12, 14,  5,  9,  3,  1,  8,
+#         13, 10,  3,  1,  3,  8,  2,  1, 21,  7, 18,  1, 11,  5, 18])
+# Output len:  tensor([1])
+# Target len:  tensor([33])
+# tensor(inf, grad_fn=<MeanBackward0>)
+
+
 
         # Calculating loss
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
         loss.backward()
+        print(loss)
         with torch.no_grad():
             temptemp = audioo.grad.to(device)
             temptemp = temptemp.detach_()
+            print("This is the output", temptemp)
+        print("This is the output", temptemp)
 
         return temptemp
 
