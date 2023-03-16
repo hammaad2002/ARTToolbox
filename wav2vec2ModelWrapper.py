@@ -161,13 +161,11 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         targets = torch.tensor(encoded_transcription, dtype=torch.long)
         output_sizes = torch.tensor([emission.shape[1]], dtype=torch.long)
         target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long)
-        print(emission.shape)
-        print(targets) 
-        print(output_sizes)
-        print(target_sizes)
-
-#tensor([ 3,  8,  2,  1, 16,  8,  7, 12, 11,  1,  4, 12, 14,  5,  9,  3,  1,  8,
-#         13, 10,  3,  1,  3,  8,  2,  1, 21,  7, 18,  1, 11,  5, 18])
+        print("Starting from here:... ")
+        print("Emission ",emission.shape)
+        print("Targets ",targets)
+        print("Output len: ",output_sizes)
+        print("Target len: ",target_sizes)
 
         # Calculating loss
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
