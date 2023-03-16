@@ -144,7 +144,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         print(x)
         print(y)
         x = x.to("cpu")
-        audioo = x.clone().requires_grad_(False)
+        audioo = x.clone().requires_grad_(True)
         #freeze model's weights
         print(audioo)
         self.__model.cpu()
