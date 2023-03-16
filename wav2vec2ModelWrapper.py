@@ -130,7 +130,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
         return loss, np.array([transcript])
 
-    def loss_gradient(self, x: np.ndarray, y: np.ndarray, **kwargs) -> np.ndarray:
+    def loss_gradient(self, x: np.ndarray, y: np.ndarray, **kwargs)
         """
         Compute the gradient of the loss function w.r.t. `x`.
         :param x: Samples of shape (nb_samples, seq_length). Note that, it is allowable that sequences in the batch
@@ -141,13 +141,16 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :return: Loss gradients of the same shape as `x`.
         """
         import torch
+        print(x)
+        print(y)
         audioo = torch.from_numpy(x).clone().requires_grad_().to(self.device)
         #freeze model's weights
+        print(audioo)
         self.__model.eval()
 
         # Encode the transcription as integers
         encoded_transcription = self.encode_transcription(y.replace(" ","|"))
-
+        print(encoded_transcription)
         # Generate adversarial example
         emission, _ = self.__model(audioo)
 
@@ -162,7 +165,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         loss.backward()
         print("This is the output",audioo.grad.to(self.device))
 
-        return audioo.grad.numpy()
+        return audioo.grad
 
 
     # Implement to_training_mode method 
