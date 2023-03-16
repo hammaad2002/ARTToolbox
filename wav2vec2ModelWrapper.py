@@ -144,10 +144,11 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         print(x)
         print(y)
         x = x.to("cpu")
-        audioo = x.clone().requires_grad_()
+        audioo = x.clone().requires_grad_(False)
         #freeze model's weights
         print(audioo)
-        self.__model.cpu().eval()
+        self.__model.cpu()
+        self.__model.eval()
 
         # Encode the transcription as integers
         encoded_transcription = self.encode_transcription(y[0].replace(" ","|"))
@@ -165,8 +166,8 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
         loss.backward()
         with torch.no_grad():
-            temp = audioo.grad.to("cpu")
-            temp = temp.detach_()
+            temptemp = audioo.grad.to("cpu")
+            temptemp = temptemp.detach_()
             print("This is the output", temp)
         print("This is the output", temp)
         return temp
