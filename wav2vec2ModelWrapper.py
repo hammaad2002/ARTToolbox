@@ -157,6 +157,8 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :return: Loss gradients of the same shape as `x`.
         """
         import torch
+        import numpy as np
+        
         audioo = torch.from_numpy(x).clone().requires_grad_().to(self.device)
         #freeze model's weights
         self.__model.eval()
@@ -178,7 +180,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         loss.backward()
         print("This is the output",audioo.grad.to(self.device))
 
-        return audioo.grad
+        return audioo.grad.numpy()
 
     # Implement to_training_mode method 
     def to_training_mode(self) -> None:
