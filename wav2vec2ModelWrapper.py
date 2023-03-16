@@ -143,7 +143,8 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         import torch
         print(x)
         print(y)
-        audioo = torch.from_numpy(x).clone().requires_grad_(True).retain_grad()
+        x = x.to(device)
+        audioo = x.clone().requires_grad_()
         #freeze model's weights
         print(audioo)
         self.__model.eval()
@@ -163,12 +164,12 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         # Calculating loss
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
         loss.backward()
-        temp = 0
         with torch.no_grad():
-            grad = audioo.grad.to(self.device)
-            grad.detach_()
-            temp = grad.clone().detach()
+            temp = audioo.grad.to(self.device)
+            temp.detach_()
+            #temp = grad.clone().detach()
             print("This is the output", temp)
+        print("This is the output", temp)
         return temp
 
 
