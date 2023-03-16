@@ -94,7 +94,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
 
     # Implement compute_loss_and_decoded_output method
     def compute_loss_and_decoded_output(
-        self, masked_adv_input: "torch.Tensor", original_output: np.ndarray, **kwargs
+        self, masked_adv_input: "torch.Tensor", original_output: np.ndarray, device = "cuda", **kwargs
     ) -> Tuple["torch.Tensor", np.ndarray]:
         """
         Compute loss function and decoded output.
@@ -105,6 +105,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :param real_lengths: Real lengths of original sequences.
         :return: The loss and the decoded output.
         """
+        self.device = device
         bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
         # Changing the variable name for my convenience 
         x_tensor = masked_adv_input.to(self.device)
@@ -161,21 +162,6 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         output_sizes = torch.tensor([emission.shape[0]], dtype=torch.long)
         emission = emission.transpose(0, 1)
         target_sizes = torch.tensor([len(encoded_transcription)], dtype=torch.long)
-        print("Starting from here:... ")
-        print("Emission ",emission.shape)
-        print("Targets ",targets)
-        print("Output len: ",output_sizes)
-        print("Target len: ",target_sizes)
-
-# Starting from here:... 
-# Emission  torch.Size([143, 1, 29])
-# Targets  tensor([ 3,  8,  2,  1, 16,  8,  7, 12, 11,  1,  4, 12, 14,  5,  9,  3,  1,  8,
-#         13, 10,  3,  1,  3,  8,  2,  1, 21,  7, 18,  1, 11,  5, 18])
-# Output len:  tensor([1])
-# Target len:  tensor([33])
-# tensor(inf, grad_fn=<MeanBackward0>)
-
-
 
         # Calculating loss
         loss = F.ctc_loss(emission, targets, output_sizes, target_sizes)
