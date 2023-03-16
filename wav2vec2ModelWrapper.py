@@ -94,7 +94,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
 
     # Implement compute_loss_and_decoded_output method
     def compute_loss_and_decoded_output(
-        self, masked_adv_input: "torch.Tensor", original_output: np.ndarray, device = "cuda", **kwargs
+        self, masked_adv_input: "torch.Tensor", original_output: np.ndarray, **kwargs
     ) -> Tuple["torch.Tensor", np.ndarray]:
         """
         Compute loss function and decoded output.
@@ -105,13 +105,13 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :param real_lengths: Real lengths of original sequences.
         :return: The loss and the decoded output.
         """
-        self.device = device
         bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
         # Changing the variable name for my convenience 
         x_tensor = masked_adv_input.to(self.device)
         x_tensor = x_tensor.float()
         # Performing inference
         self.__model.eval()
+        self.__model.cuda()
         emission, _ = self.__model(x_tensor)
 
         # Decoding the model's output
