@@ -43,26 +43,10 @@ class GreedyCTCDecoder(torch.nn.Module):
         return "".join([self.labels[i] for i in indices])
 
 # Define your wrapper class
-class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorchEstimator, NeuralNetworkMixin, LossGradientsMixin, BaseEstimator):
-    # Initialize your wrapper with your model and other parameters
-    '''
-    ---------------------------------------------------------------------------
-    TypeError                                 Traceback (most recent call last)
-    <ipython-input-41-21349aa09a76> in <module>
-    ----> 1 estimator = wav2vec2Model( model )
-
-    TypeError: Can't instantiate abstract class wav2vec2Model with abstract methods 
-    get_activations, input_shape, loss_gradient 
-
-    '''
-
-    estimator_params = PyTorchEstimator.estimator_params + ["optimizer", "use_amp", "opt_level", "lm_config", "verbose"] + (
-        BaseEstimator.estimator_params
-        + NeuralNetworkMixin.estimator_params
-        + [
-            "device_type",
-        ]
-    )
+class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorchEstimator):
+    # Initialize your wrapper with your model and other parameter
+    
+    estimator_params = PyTorchEstimator.estimator_params + ["optimizer", "use_amp", "opt_level", "lm_config", "verbose"] + BaseEstimator.estimator_params+ NeuralNetworkMixin.estimator_params+ ["device_type"]
     
     def __init__(
         self,
@@ -157,17 +141,15 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :return: Loss gradients of the same shape as `x`.
         """
         import torch
-        import numpy as np
-        
         audioo = torch.from_numpy(x).clone().requires_grad_().to(self.device)
         #freeze model's weights
         self.__model.eval()
-        
+
         # Encode the transcription as integers
         encoded_transcription = self.encode_transcription(y.replace(" ","|"))
-        
+
         # Generate adversarial example
-        emission, _ = self.__model(x_tensor)
+        emission, _ = self.__model(audioo)
 
         # Declaring arguments for CTC Loss
         emission = emission.transpose(0, 1)
@@ -181,6 +163,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         print("This is the output",audioo.grad.to(self.device))
 
         return audioo.grad.numpy()
+
 
     # Implement to_training_mode method 
     def to_training_mode(self) -> None:
