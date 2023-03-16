@@ -73,7 +73,7 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
             preprocessing=preprocessing,
         )
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self._device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.__model = modell
 
     #transcription encoder for CTC LOSS
@@ -105,9 +105,12 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         :param real_lengths: Real lengths of original sequences.
         :return: The loss and the decoded output.
         """
+
+        import torch
+        import torchaudio
         bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
         # Changing the variable name for my convenience 
-        x_tensor = masked_adv_input.to(self.device)
+        x_tensor = masked_adv_input.to(self._device)
         x_tensor = x_tensor.float()
         # Performing inference
         self.__model.cuda()
@@ -141,10 +144,13 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
                   lengths. A possible example of `y` could be: `y = np.array(['SIXTY ONE', 'HELLO'])`.
         :return: Loss gradients of the same shape as `x`.
         """
+
+        #imp modules
         import torch
         x = x.to(device)
         audioo = x.clone().requires_grad_()
         #freeze model's weights
+        self.__model.cpu()
         self.__model.eval()
 
         # Encode the transcription as integers
@@ -167,6 +173,30 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
 
         return temptemp
 
+    def predict(
+        self, x: np.ndarray, batch_size: int = 1, **kwargs
+    ) -> Union[Tuple[np.ndarray, np.ndarray], np.ndarray]:
+
+        #imp modules needed here
+        import torch
+        import torchaudio
+
+        #model's dictionary
+        bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
+        # Changing the variable name for my convenience 
+        x_tensor = masked_adv_input.to(self._device)
+        x_tensor = x_tensor.float()
+        # Performing inference
+        self.__model.cuda()
+        self.__model.eval()
+        emission, _ = self.__model(x_tensor)
+
+        # Decoding the model's output
+        decoder = GreedyCTCDecoder(labels = bundle.get_labels())
+        transcript = decoder(emission[0])
+        transcript = transcript.replace("|"," ")
+        
+        return np.array([transcript])
 
     # Implement to_training_mode method 
     def to_training_mode(self) -> None:
