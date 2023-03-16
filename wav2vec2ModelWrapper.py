@@ -143,7 +143,8 @@ class wav2vec2Model(PytorchSpeechRecognizerMixin, SpeechRecognizerMixin, PyTorch
         import torch
         print(x)
         print(y)
-        audioo = torch.from_numpy(x, requires_grad=True).clone().retain_grad().to(self.device)
+        #audioo = torch.from_numpy(x, requires_grad=True).clone().retain_grad().to(self.device)
+        audioo = torch.from_numpy(x).clone().requires_grad_(True).to(self.device)
         #freeze model's weights
         print(audioo)
         self.__model.eval()
