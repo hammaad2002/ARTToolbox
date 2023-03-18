@@ -229,21 +229,21 @@ class ImperceptibleASR(EvasionAttack):
 
         x_perturbed = x.copy()
 
-        for i in range(1, self.max_iter_1 + 1):
+        for i in tqdm(range(1, self.max_iter_1 + 1)):
             # perform FGSM step for x
             gradients = self.estimator.losss_gradient(x_perturbed, y)
-            x_perturbed = x_perturbed - self.learning_rate_1 * np.array([np.sign(g) for g in gradients], dtype=dtype)
+            x_perturbed = x_perturbed - self.learning_rate_1 * np.array([np.sign(g) for g in tqdm(gradients)], dtype=dtype)
 
             # clip perturbation
             perturbation = x_perturbed - x
-            perturbation = np.array([np.clip(p, -e, e) for p, e in zip(perturbation, epsilon)], dtype=dtype)
+            perturbation = np.array([np.clip(p, -e, e) for p, e in tqdm(zip(perturbation, epsilon))], dtype=dtype)
 
             # re-apply clipped perturbation to x
             x_perturbed = x + perturbation
 
             if i % self.num_iter_decrease_eps == 0:
                 prediction = self.estimator.predict(x_perturbed, batch_size=batch_size)
-                for j in range(batch_size):
+                for j in tqdm(range(batch_size)):
                     # validate adversarial target, i.e. f(x_perturbed)=y
                     if prediction[j] == y[j].upper():
                         # decrease max norm bound epsilon
@@ -256,7 +256,7 @@ class ImperceptibleASR(EvasionAttack):
                 logger.info("Current iteration %s, epsilon %s", i, epsilon)
 
         # return perturbed x if no adversarial example found
-        for j in range(batch_size):
+        for j in tqdm(range(batch_size)):
             if x_adversarial[j] is None:
                 logger.critical("Adversarial attack stage 1 for x_%s was not successful", j)
                 x_adversarial[j] = x_perturbed[j]
@@ -294,7 +294,7 @@ class ImperceptibleASR(EvasionAttack):
 
         x_perturbed = x_adversarial.copy()
 
-        for i in range(1, self.max_iter_2 + 1):
+        for i in tqdm(range(1, self.max_iter_2 + 1)):
             # get perturbation
             perturbation = x_perturbed - x
 
@@ -312,7 +312,7 @@ class ImperceptibleASR(EvasionAttack):
 
             if i % self.num_iter_increase_alpha == 0 or i % self.num_iter_decrease_alpha == 0:
                 prediction = self.estimator.predict(x_perturbed, batch_size=batch_size)
-                for j in range(batch_size):
+                for j in tqdm(range(batch_size)):
                     # validate if adversarial target succeeds, i.e. f(x_perturbed)=y
                     if i % self.num_iter_increase_alpha == 0 and prediction[j] == y[j].upper():
                         # increase alpha
@@ -329,7 +329,7 @@ class ImperceptibleASR(EvasionAttack):
                 logger.info("Current iteration %s, alpha %s, loss theta %s", i, alpha, loss_theta)
 
             # note: avoids nan values in loss theta, which can occur when loss converges to zero.
-            for j in range(batch_size):
+            for j in tqdm(range(batch_size)):
                 if loss_theta[j] < self.loss_theta_min and not early_stop[j]:
                     logger.warning(
                         "Batch sample %s reached minimum threshold of %s for theta loss.", j, self.loss_theta_min
@@ -342,7 +342,7 @@ class ImperceptibleASR(EvasionAttack):
                 break
 
         # return perturbed x if no adversarial example found
-        for j in range(batch_size):
+        for j in tqdm(range(batch_size)):
             if x_imperceptible[j] is None:
                 logger.critical("Adversarial attack stage 2 for x_%s was not successful", j)
                 x_imperceptible[j] = x_perturbed[j]
@@ -359,7 +359,7 @@ class ImperceptibleASR(EvasionAttack):
         psd_maximum = []
         x_padded, _ = pad_sequence_input(x)
 
-        for x_i in x_padded:
+        for x_i in tqdm(x_padded):
             print(x_i)
             m_t, p_m = self.masker.calculate_threshold_and_psd_maximum(audio = x_i)
             masking_threshold.append(m_t)
@@ -412,7 +412,7 @@ class ImperceptibleASR(EvasionAttack):
         # undo padding, i.e. change gradients shape from (nb_samples, max_length) to (nb_samples)
         lengths = delta_mask.sum(axis=1)
         gradients = []
-        for gradient_padded, length in zip(gradients_padded, lengths):
+        for gradient_padded, length in tqdm(zip(gradients_padded, lengths)):
             gradient = gradient_padded[:length]
             gradients.append(gradient)
 
@@ -653,7 +653,7 @@ class PsychoacousticMasker(object):
         """
         psd_matrix, psd_max = self.power_spectral_density(audio)
         threshold = np.zeros_like(psd_matrix)
-        for frame in range(psd_matrix.shape[1]):
+        for frame in tqdm(range(psd_matrix.shape[1])):
             # apply methods for finding and filtering maskers
             maskers, masker_idx = self.filter_maskers(*self.find_maskers(psd_matrix[:, frame]))
             # apply methods for calculating global threshold
@@ -769,7 +769,7 @@ class PsychoacousticMasker(object):
         masker_idx = ss.argrelmax(psd_vector)[0]
 
         # smooth maskers with their direct neighbors
-        psd_maskers = 10 * np.log10(np.sum([10 ** (psd_vector[masker_idx + i] / 10) for i in range(-1, 2)], axis=0))
+        psd_maskers = 10 * np.log10(np.sum([10 ** (psd_vector[masker_idx + i] / 10) for i in tqdm(range(-1, 2))], axis=0))
         return psd_maskers, masker_idx
 
     def filter_maskers(self, maskers: np.ndarray, masker_idx: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -790,7 +790,7 @@ class PsychoacousticMasker(object):
         # filter on the bark distance
         bark_condition = np.ones(masker_idx.shape, dtype=bool)
         i_prev = 0
-        for i in range(1, len(masker_idx)):
+        for i in tqdm(range(1, len(masker_idx))):
             # find pairs of maskers that are within 0.5 bark distance of each other
             if self.bark[i] - self.bark[i_prev] < 0.5:
                 # discard the smaller masker
@@ -813,7 +813,7 @@ class PsychoacousticMasker(object):
         delta_shift = -6.025 - 0.275 * self.bark
         threshold = np.zeros(masker_idx.shape + self.bark.shape)
         # TODO reduce for loop
-        for k, (masker_j, masker) in enumerate(zip(masker_idx, maskers)):
+        for k, (masker_j, masker) in tqdm(enumerate(zip(masker_idx, maskers))):
             # critical band rate of the masker
             z_j = self.bark[masker_j]
             # distance maskees to masker in bark
