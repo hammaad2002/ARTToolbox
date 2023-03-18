@@ -22,6 +22,8 @@ This module implements the adversarial and imperceptible attack on automatic spe
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from tqdm import tqdm 
+
 import logging
 from typing import TYPE_CHECKING, Optional, Tuple, Union
 
@@ -180,7 +182,7 @@ class ImperceptibleASR(EvasionAttack):
         x_imperceptible = [None] * nb_samples
 
         nb_batches = int(np.ceil(nb_samples / float(self.batch_size)))
-        for m in range(nb_batches):
+        for m in tqdm(range(nb_batches)):
             # batch indices
             begin, end = m * self.batch_size, min((m + 1) * self.batch_size, nb_samples)
 
@@ -358,6 +360,7 @@ class ImperceptibleASR(EvasionAttack):
         x_padded, _ = pad_sequence_input(x)
 
         for x_i in x_padded:
+            print(x_i)
             m_t, p_m = self.masker.calculate_threshold_and_psd_maximum(audio = x_i)
             masking_threshold.append(m_t)
             psd_maximum.append(p_m)
@@ -611,7 +614,7 @@ class ImperceptibleASR(EvasionAttack):
             raise ValueError("The batch size `batch_size` has to be positive.")
 
 
-class PsychoacousticMasker:
+class PsychoacousticMasker(object):
     """
     Implements psychoacoustic model of Lin and Abdulla (2015) following Qin et al. (2019) simplifications.
     | Paper link: Lin and Abdulla (2015), https://www.springer.com/gp/book/9783319079738
