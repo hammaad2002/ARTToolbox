@@ -358,7 +358,7 @@ class ImperceptibleASR(EvasionAttack):
         x_padded, _ = pad_sequence_input(x)
 
         for x_i in x_padded:
-            m_t, p_m = self.masker.calculate_threshold_and_psd_maximum(x_i)
+            m_t, p_m = self.masker.calculate_threshold_and_psd_maximum(audio = x_i)
             masking_threshold.append(m_t)
             psd_maximum.append(p_m)
         # stabilize imperceptible loss by canceling out the "10*log" term in power spectral density maximum and
