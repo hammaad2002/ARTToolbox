@@ -231,7 +231,7 @@ class ImperceptibleASR(EvasionAttack):
 
         for i in range(1, self.max_iter_1 + 1):
             # perform FGSM step for x
-            gradients = self.estimator.losss_gradient(x_perturbed, y)
+            gradients = self.estimator.loss_gradient(x_perturbed, y)
             x_perturbed = x_perturbed - self.learning_rate_1 * np.array([np.sign(g) for g in gradients], dtype=dtype)
 
             # clip perturbation
@@ -299,7 +299,7 @@ class ImperceptibleASR(EvasionAttack):
             perturbation = x_perturbed - x
 
             # get loss gradients of both losses
-            gradients_net = self.estimator.losss_gradient(x_perturbed, y)
+            gradients_net = self.estimator.loss_gradient(x_perturbed, y)
             gradients_theta, loss_theta = self._loss_gradient_masking_threshold(
                 perturbation, x, masking_threshold, psd_maximum
             )
