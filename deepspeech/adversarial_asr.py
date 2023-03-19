@@ -26,7 +26,6 @@ import logging
 from typing import TYPE_CHECKING
 
 from art.attacks.attack import EvasionAttack
-from art.estimators.speech_recognition.wav2vec2ModelWrapper import wav2vec2Model
 from art.attacks.evasion.imperceptible_asr.imperceptible_asr import ImperceptibleASR
 
 if TYPE_CHECKING:
@@ -52,7 +51,7 @@ class CarliniWagnerASR(ImperceptibleASR):
 
     def __init__(
         self,
-        estimator: wav2vec2Model,
+        estimator,
         eps: float = 2000.0,
         learning_rate: float = 100.0,
         max_iter: int = 1000,

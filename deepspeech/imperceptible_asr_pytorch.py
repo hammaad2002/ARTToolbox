@@ -33,7 +33,6 @@ import scipy
 from art.attacks.attack import EvasionAttack
 from art.estimators.pytorch import PyTorchEstimator
 from art.estimators.speech_recognition.pytorch_deep_speech import PyTorchDeepSpeech
-from art.estimators.speech_recognition.wav2vec2ModelWrapper import wav2vec2Model
 from art.estimators.speech_recognition.speech_recognizer import SpeechRecognizerMixin
 from art.estimators.speech_recognition.speech_recognizer import PytorchSpeechRecognizerMixin
 
@@ -85,7 +84,7 @@ class ImperceptibleASRPyTorch(EvasionAttack):
 
     def __init__(
         self,
-        estimator: wav2vec2Model, #PyTorchDeepSpeech
+        estimator, #PyTorchDeepSpeech
         eps: float = 0.05,
         max_iter_1: int = 10,
         max_iter_2: int = 4000,
