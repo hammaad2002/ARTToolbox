@@ -99,8 +99,7 @@ class CarliniWagnerASR(ImperceptibleASR):
         max_iter_1 = max_iter,
         max_iter_2 = 0,
         learning_rate_1 = learning_rate,
-        optimizer_1 = optimizer_1,
-        
+        optimizer_1 = optimizer,
         targeted = True,
         global_max_length = global_max_length,
         initial_rescale = initial_rescale,
