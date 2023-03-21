@@ -107,7 +107,6 @@ class CarliniWagnerASR(ImperceptibleASR):
         decrease_factor_eps = decrease_factor_eps,
         num_iter_decrease_eps = num_iter_decrease_eps,
         max_num_decrease_eps = max_num_decrease_eps,
-        targeted = targeted,
         train_mode_for_backward = train_mode_for_backward,
         clip_min = clip_min,
         clip_max = clip_max,
